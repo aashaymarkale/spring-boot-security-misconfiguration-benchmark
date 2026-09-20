@@ -15,3 +15,5 @@ out/
 Thumbs.db
 *.log
 logs/
+
+.gitignore
