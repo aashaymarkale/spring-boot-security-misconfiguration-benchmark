@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin — Users — demo-web-app</title>
+</head>
+<body>
+    <a th:href="@{/notes}">&larr; Back</a>
+
+    <h1>Registered Users</h1>
+    <p><em>This page is reachable without authentication —
+        see VULNERABILITY-TP [AUTH-002] in SecurityConfig.java</em></p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Display Name</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">1</td>
+                <td th:text="${user.username}">username</td>
+                <td th:text="${user.displayName}">Display Name</td>
+                <td th:text="${user.role}">ROLE</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

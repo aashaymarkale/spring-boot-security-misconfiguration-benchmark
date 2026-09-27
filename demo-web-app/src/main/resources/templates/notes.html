@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Notes — demo-web-app</title>
+</head>
+<body>
+    <h1>Welcome, <span th:text="${username}">User</span></h1>
+
+    <nav>
+        <a th:href="@{/notes}">My Notes</a> |
+        <a th:href="@{/admin/users}">Admin</a> |
+        <form th:action="@{/logout}" method="post" style="display:inline">
+            <button type="submit">Logout</button>
+        </form>
+    </nav>
+
+    <h2>Your Notes</h2>
+    <ul>
+        <li th:each="note : ${notes}">
+            <a th:href="@{'/notes/' + ${note.id}}"
+               th:text="${note.title}">Note title</a>
+        </li>
+    </ul>
+</body>
+</html>

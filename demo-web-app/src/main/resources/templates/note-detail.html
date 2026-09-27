@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Note Detail — demo-web-app</title>
+</head>
+<body>
+    <a th:href="@{/notes}">&larr; Back to my notes</a>
+
+    <h1 th:text="${note.title}">Note title</h1>
+    <p th:text="${note.content}">Note content</p>
+
+    <p><small>Note ID: <span th:text="${note.id}">1</span>,
+        Owner ID: <span th:text="${note.ownerId}">1</span></small></p>
+</body>
+</html>
