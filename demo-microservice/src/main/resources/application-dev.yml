@@ -1,0 +1,50 @@
+# ─────────────────────────────────────────────────────────────
+#  application-dev.yml — LOCAL DEVELOPMENT profile only.
+#  Every finding in this file is a FALSE POSITIVE because the
+#  dev profile is never active in the deployed (prod) container:
+#  see Dockerfile (SPRING_PROFILES_ACTIVE=prod) and the prod
+#  profile, which overrides each of these settings.
+# ─────────────────────────────────────────────────────────────
+spring:
+  datasource:
+    url: jdbc:h2:mem:inventorydb
+    username: sa
+    # VULNERABILITY-FP [CRED-003]: hardcoded database password
+    # Why FP: password for a throw-away in-memory H2 database that
+    # exists only on a developer machine. No production data, no
+    # network exposure. Prod reads DB_PASSWORD from the environment.
+    password: devpass
+  h2:
+    console:
+      # VULNERABILITY-FP [H2-002]: H2 console enabled
+      # Why FP: dev profile only; enabled so developers can inspect
+      # the in-memory database. Prod uses PostgreSQL.
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # VULNERABILITY-FP [ACT-003]: all actuator endpoints exposed
+        # Why FP: dev profile only. The prod profile restricts
+        # exposure to health,info. Even in dev, SecurityConfig
+        # requires ROLE_SERVICE for everything except /actuator/health.
+        include: "*"
+
+server:
+  error:
+    # VULNERABILITY-FP [ERR-002]: stack traces in error responses
+    # Why FP: dev profile only, aids debugging. Compare ERR-001 in
+    # the prod profile, where the same setting is a TRUE POSITIVE.
+    include-stacktrace: always
+
+app:
+  security:
+    # VULNERABILITY-FP [CRED-007]: hardcoded API key
+    # Why FP: obviously local-only development key; the prod
+    # profile defines its own (see CRED-004 for the prod problem).
+    api-key: dev-local-key-123
+    # VULNERABILITY-FP [CRED-008]: hardcoded admin API key
+    # Why FP: obviously local-only development key, same reasoning as
+    # CRED-007. The prod profile reads the admin key from the environment.
+    admin-api-key: dev-admin-key-456

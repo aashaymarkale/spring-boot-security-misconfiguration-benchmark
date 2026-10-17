@@ -1,0 +1,21 @@
+# ─────────────────────────────────────────────────────────────
+#  application.yml — demo-microservice (base configuration)
+#  Profile-specific settings live in application-dev.yml and
+#  application-prod.yml. The ACTIVE profile determines whether
+#  a flagged setting is actually in effect at runtime.
+# ─────────────────────────────────────────────────────────────
+spring:
+  application:
+    name: demo-microservice
+  profiles:
+    # Default for local development. Production overrides this via
+    # the SPRING_PROFILES_ACTIVE=prod environment variable
+    # (see Dockerfile).
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+server:
+  port: 8082

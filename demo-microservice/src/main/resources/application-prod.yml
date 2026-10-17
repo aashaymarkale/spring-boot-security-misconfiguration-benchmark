@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────
+#  application-prod.yml — PRODUCTION profile.
+#  Activated by SPRING_PROFILES_ACTIVE=prod (see Dockerfile).
+#  Contains a mix of genuine misconfigurations (TP), justified
+#  settings (FP) and correct controls (TN, no finding expected).
+# ─────────────────────────────────────────────────────────────
+spring:
+  datasource:
+    url: jdbc:postgresql://inventory-db:5432/inventory
+    username: ${DB_USER:inventory}
+    # CONTROL (true negative): password is injected from the
+    # environment, not hardcoded. No finding expected.
+    password: ${DB_PASSWORD}
+  h2:
+    console:
+      # VULNERABILITY-TP [H2-001]: H2 console enabled in production
+      # Risk: /h2-console is reachable without authentication
+      # (permitAll in SecurityConfig) and lets any visitor attempt
+      # to connect to arbitrary JDBC URLs from the server.
+      # Context: prod uses PostgreSQL, so there is no legitimate
+      # reason for the console to exist. Contrast with H2-002 (dev FP).
+      # Expected LLM classification: TRUE_POSITIVE
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # CONTROL (true negative): exposure restricted to health,info.
+        # Contrast with ACT-003 (dev) and ACT-001/ACT-002 (App 1/2).
+        include: health,info
+
+server:
+  # ───────────────────────────────────────────────────────────
+  # VULNERABILITY-FP [SSL-003]: TLS disabled on the application
+  # Why FP: TLS is terminated at the Kubernetes ingress
+  # (k8s/ingress.yaml, spec.tls). Traffic reaches the pod over the
+  # cluster network, and forward-headers-strategy below makes the
+  # app honour X-Forwarded-Proto. Enabling TLS on the pod as well
+  # is optional hardening, not a missing control.
+  # Contextual signals: forward-headers-strategy, k8s/ingress.yaml.
+  # Expected LLM classification: FALSE_POSITIVE
+  # ───────────────────────────────────────────────────────────
+  ssl:
+    enabled: false
+  forward-headers-strategy: framework
+
+  error:
+    # VULNERABILITY-TP [ERR-001]: stack traces in error responses
+    # Risk: exceptions expose class names, library versions and
+    # internal structure to API callers, helping attackers plan
+    # further attacks (OWASP A05 lists this explicitly).
+    # Expected LLM classification: TRUE_POSITIVE
+    include-stacktrace: always
+
+app:
+  security:
+    # VULNERABILITY-TP [CRED-004]: hardcoded production API key
+    # Risk: the key that authenticates every service caller in
+    # production is committed to version control. Anyone with
+    # repository access can call the production API.
+    # Expected LLM classification: TRUE_POSITIVE
+    api-key: 7f3a9c1e5b2d48a6b0c4e8f1a2d3c5b7
+    # CONTROL (true negative): admin key injected from the environment,
+    # not hardcoded. No finding expected.
+    admin-api-key: ${ADMIN_API_KEY}
